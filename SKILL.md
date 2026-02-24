@@ -92,6 +92,34 @@ Use this context for all WebACL JSON-LD documents:
 2. If not → walk up the container hierarchy looking for `acl:default`
 3. The root container `.acl` always exists (server requirement)
 
+## Directories (Containers)
+
+In Solid, directories are called **containers**. Their URIs always end with `/`.
+
+| Directory | ACL File |
+|-----------|----------|
+| `https://pod/docs/` | `https://pod/docs/.acl` |
+| `https://pod/` (root) | `https://pod/.acl` |
+
+**How access modes work on directories:**
+
+| Mode | Effect on Directory |
+|------|-------------------|
+| `acl:Read` | List the directory contents |
+| `acl:Write` | Create and delete resources inside the directory |
+| `acl:Append` | Create resources inside (but not delete) |
+| `acl:Control` | Manage the directory's `.acl` file |
+
+**Scope predicates for directories:**
+
+| Predicate | Applies to |
+|-----------|-----------|
+| `acl:accessTo <./>;` | The directory itself only |
+| `acl:default <./>;` | Files and subdirectories inside (that lack their own `.acl`) |
+| Both together | The directory AND all its contents |
+
+**Important**: `acl:default` does NOT apply to the directory itself. These are independent — you need both predicates to cover a directory and everything inside it.
+
 ## Templates
 
 ### Template 1: Owner-Only Resource
@@ -151,32 +179,31 @@ Turtle:
 
 JSON-LD:
 ```json
-{
-  "@context": {
-    "acl": "http://www.w3.org/ns/auth/acl#",
-    "foaf": "http://xmlns.com/foaf/0.1/"
+[
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#owner",
+    "@type": "acl:Authorization",
+    "acl:agent": { "@id": "{{OWNER_WEBID}}" },
+    "acl:accessTo": { "@id": "{{RESOURCE_PATH}}" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" },
+      { "@id": "acl:Control" }
+    ]
   },
-  "@graph": [
-    {
-      "@id": "#owner",
-      "@type": "acl:Authorization",
-      "acl:agent": { "@id": "{{OWNER_WEBID}}" },
-      "acl:accessTo": { "@id": "{{RESOURCE_PATH}}" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" },
-        { "@id": "acl:Control" }
-      ]
+  {
+    "@context": {
+      "acl": "http://www.w3.org/ns/auth/acl#",
+      "foaf": "http://xmlns.com/foaf/0.1/"
     },
-    {
-      "@id": "#public",
-      "@type": "acl:Authorization",
-      "acl:agentClass": { "@id": "foaf:Agent" },
-      "acl:accessTo": { "@id": "{{RESOURCE_PATH}}" },
-      "acl:mode": [{ "@id": "acl:Read" }]
-    }
-  ]
-}
+    "@id": "#public",
+    "@type": "acl:Authorization",
+    "acl:agentClass": { "@id": "foaf:Agent" },
+    "acl:accessTo": { "@id": "{{RESOURCE_PATH}}" },
+    "acl:mode": [{ "@id": "acl:Read" }]
+  }
+]
 ```
 
 ### Template 3: Root Container ACL
@@ -204,33 +231,32 @@ Turtle:
 
 JSON-LD:
 ```json
-{
-  "@context": {
-    "acl": "http://www.w3.org/ns/auth/acl#",
-    "foaf": "http://xmlns.com/foaf/0.1/"
+[
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#owner",
+    "@type": "acl:Authorization",
+    "acl:agent": { "@id": "{{OWNER_WEBID}}" },
+    "acl:accessTo": { "@id": "./" },
+    "acl:default": { "@id": "./" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" },
+      { "@id": "acl:Control" }
+    ]
   },
-  "@graph": [
-    {
-      "@id": "#owner",
-      "@type": "acl:Authorization",
-      "acl:agent": { "@id": "{{OWNER_WEBID}}" },
-      "acl:accessTo": { "@id": "./" },
-      "acl:default": { "@id": "./" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" },
-        { "@id": "acl:Control" }
-      ]
+  {
+    "@context": {
+      "acl": "http://www.w3.org/ns/auth/acl#",
+      "foaf": "http://xmlns.com/foaf/0.1/"
     },
-    {
-      "@id": "#public",
-      "@type": "acl:Authorization",
-      "acl:agentClass": { "@id": "foaf:Agent" },
-      "acl:accessTo": { "@id": "./" },
-      "acl:mode": [{ "@id": "acl:Read" }]
-    }
-  ]
-}
+    "@id": "#public",
+    "@type": "acl:Authorization",
+    "acl:agentClass": { "@id": "foaf:Agent" },
+    "acl:accessTo": { "@id": "./" },
+    "acl:mode": [{ "@id": "acl:Read" }]
+  }
+]
 ```
 
 ### Template 4: Append-Only Inbox
@@ -258,33 +284,30 @@ Turtle:
 
 JSON-LD:
 ```json
-{
-  "@context": {
-    "acl": "http://www.w3.org/ns/auth/acl#"
+[
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#owner",
+    "@type": "acl:Authorization",
+    "acl:agent": { "@id": "{{OWNER_WEBID}}" },
+    "acl:accessTo": { "@id": "./inbox/" },
+    "acl:default": { "@id": "./inbox/" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" },
+      { "@id": "acl:Control" }
+    ]
   },
-  "@graph": [
-    {
-      "@id": "#owner",
-      "@type": "acl:Authorization",
-      "acl:agent": { "@id": "{{OWNER_WEBID}}" },
-      "acl:accessTo": { "@id": "./inbox/" },
-      "acl:default": { "@id": "./inbox/" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" },
-        { "@id": "acl:Control" }
-      ]
-    },
-    {
-      "@id": "#appendPublic",
-      "@type": "acl:Authorization",
-      "acl:agentClass": { "@id": "acl:AuthenticatedAgent" },
-      "acl:accessTo": { "@id": "./inbox/" },
-      "acl:default": { "@id": "./inbox/" },
-      "acl:mode": [{ "@id": "acl:Append" }]
-    }
-  ]
-}
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#appendPublic",
+    "@type": "acl:Authorization",
+    "acl:agentClass": { "@id": "acl:AuthenticatedAgent" },
+    "acl:accessTo": { "@id": "./inbox/" },
+    "acl:default": { "@id": "./inbox/" },
+    "acl:mode": [{ "@id": "acl:Append" }]
+  }
+]
 ```
 
 ### Template 5: Group Access
@@ -310,34 +333,31 @@ Turtle:
 
 JSON-LD:
 ```json
-{
-  "@context": {
-    "acl": "http://www.w3.org/ns/auth/acl#"
+[
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#owner",
+    "@type": "acl:Authorization",
+    "acl:agent": { "@id": "{{OWNER_WEBID}}" },
+    "acl:accessTo": { "@id": "{{RESOURCE_PATH}}" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" },
+      { "@id": "acl:Control" }
+    ]
   },
-  "@graph": [
-    {
-      "@id": "#owner",
-      "@type": "acl:Authorization",
-      "acl:agent": { "@id": "{{OWNER_WEBID}}" },
-      "acl:accessTo": { "@id": "{{RESOURCE_PATH}}" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" },
-        { "@id": "acl:Control" }
-      ]
-    },
-    {
-      "@id": "#group",
-      "@type": "acl:Authorization",
-      "acl:agentGroup": { "@id": "{{GROUP_URI}}" },
-      "acl:accessTo": { "@id": "{{RESOURCE_PATH}}" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" }
-      ]
-    }
-  ]
-}
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#group",
+    "@type": "acl:Authorization",
+    "acl:agentGroup": { "@id": "{{GROUP_URI}}" },
+    "acl:accessTo": { "@id": "{{RESOURCE_PATH}}" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" }
+    ]
+  }
+]
 ```
 
 ### Template 6: Origin-Restricted App Access
@@ -400,34 +420,33 @@ Turtle:
 
 JSON-LD:
 ```json
-{
-  "@context": {
-    "acl": "http://www.w3.org/ns/auth/acl#",
-    "foaf": "http://xmlns.com/foaf/0.1/"
+[
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#owner",
+    "@type": "acl:Authorization",
+    "acl:agent": { "@id": "{{OWNER_WEBID}}" },
+    "acl:accessTo": { "@id": "{{CONTAINER_PATH}}" },
+    "acl:default": { "@id": "{{CONTAINER_PATH}}" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" },
+      { "@id": "acl:Control" }
+    ]
   },
-  "@graph": [
-    {
-      "@id": "#owner",
-      "@type": "acl:Authorization",
-      "acl:agent": { "@id": "{{OWNER_WEBID}}" },
-      "acl:accessTo": { "@id": "{{CONTAINER_PATH}}" },
-      "acl:default": { "@id": "{{CONTAINER_PATH}}" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" },
-        { "@id": "acl:Control" }
-      ]
+  {
+    "@context": {
+      "acl": "http://www.w3.org/ns/auth/acl#",
+      "foaf": "http://xmlns.com/foaf/0.1/"
     },
-    {
-      "@id": "#readDefault",
-      "@type": "acl:Authorization",
-      "acl:agentClass": { "@id": "foaf:Agent" },
-      "acl:accessTo": { "@id": "{{CONTAINER_PATH}}" },
-      "acl:default": { "@id": "{{CONTAINER_PATH}}" },
-      "acl:mode": [{ "@id": "acl:Read" }]
-    }
-  ]
-}
+    "@id": "#readDefault",
+    "@type": "acl:Authorization",
+    "acl:agentClass": { "@id": "foaf:Agent" },
+    "acl:accessTo": { "@id": "{{CONTAINER_PATH}}" },
+    "acl:default": { "@id": "{{CONTAINER_PATH}}" },
+    "acl:mode": [{ "@id": "acl:Read" }]
+  }
+]
 ```
 
 ## Template Variables

@@ -276,35 +276,33 @@
 
             <h3>JSON-LD format (equivalent)</h3>
             <p>Since ACL files are RDF, they can be expressed in JSON-LD&mdash;making them accessible
-            to web developers and AI agents that work natively with JSON:</p>
-            <pre><code>{
-  "@context": {
-    "acl": "http://www.w3.org/ns/auth/acl#",
-    "foaf": "http://xmlns.com/foaf/0.1/"
+            to web developers and AI agents that work natively with JSON. Multiple authorizations
+            are expressed as a JSON array:</p>
+            <pre><code>[
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#owner",
+    "@type": "acl:Authorization",
+    "acl:agent": { "@id": "https://alice.pod/profile/card#me" },
+    "acl:accessTo": { "@id": "./file1" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" },
+      { "@id": "acl:Control" }
+    ]
   },
-  "@graph": [
-    {
-      "@id": "#owner",
-      "@type": "acl:Authorization",
-      "acl:agent": { "@id": "https://alice.pod/profile/card#me" },
-      "acl:accessTo": { "@id": "./file1" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" },
-        { "@id": "acl:Control" }
-      ]
+  {
+    "@context": {
+      "acl": "http://www.w3.org/ns/auth/acl#",
+      "foaf": "http://xmlns.com/foaf/0.1/"
     },
-    {
-      "@id": "#public",
-      "@type": "acl:Authorization",
-      "acl:agentClass": { "@id": "foaf:Agent" },
-      "acl:accessTo": { "@id": "./file1" },
-      "acl:mode": [
-        { "@id": "acl:Read" }
-      ]
-    }
-  ]
-}</code></pre>
+    "@id": "#public",
+    "@type": "acl:Authorization",
+    "acl:agentClass": { "@id": "foaf:Agent" },
+    "acl:accessTo": { "@id": "./file1" },
+    "acl:mode": [ { "@id": "acl:Read" } ]
+  }
+]</code></pre>
         </div>
 
         <div class="section">
@@ -357,6 +355,73 @@
                     <td>A specific web application origin (combined with agent)</td>
                 </tr>
             </table>
+        </div>
+
+        <div class="section">
+            <h2>Directories</h2>
+            <p>
+                In Solid, directories are called <strong>containers</strong>. Their URIs end with <code>/</code>.
+                Each container can have a <code>.acl</code> file that controls access to the directory itself
+                and, via <code>acl:default</code>, to everything inside it.
+            </p>
+            <table>
+                <tr>
+                    <th>Resource</th>
+                    <th>ACL file</th>
+                </tr>
+                <tr>
+                    <td><code>https://pod/docs/</code> (directory)</td>
+                    <td><code>https://pod/docs/.acl</code></td>
+                </tr>
+                <tr>
+                    <td><code>https://pod/docs/file1</code> (file)</td>
+                    <td><code>https://pod/docs/file1.acl</code></td>
+                </tr>
+                <tr>
+                    <td><code>https://pod/</code> (root directory)</td>
+                    <td><code>https://pod/.acl</code></td>
+                </tr>
+            </table>
+            <p>
+                <code>acl:Read</code> on a directory lets an agent <strong>list its contents</strong>.
+                <code>acl:Write</code> lets an agent <strong>create and delete</strong> resources inside it.
+                Two scope predicates control what the ACL applies to:
+            </p>
+            <table>
+                <tr>
+                    <th>Predicate</th>
+                    <th>Applies to</th>
+                </tr>
+                <tr>
+                    <td><code>acl:accessTo &lt;./&gt;</code></td>
+                    <td>The directory itself only</td>
+                </tr>
+                <tr>
+                    <td><code>acl:default &lt;./&gt;</code></td>
+                    <td>Files and subdirectories inside (that lack their own <code>.acl</code>)</td>
+                </tr>
+                <tr>
+                    <td>Both together</td>
+                    <td>The directory <em>and</em> all its contents</td>
+                </tr>
+            </table>
+            <p>
+                These are <strong>independent</strong>. An authorization with only <code>acl:default</code>
+                does <em>not</em> apply to the directory itself. To cover both, include both predicates:
+            </p>
+            <pre><code>{
+  "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+  "@id": "#owner",
+  "@type": "acl:Authorization",
+  "acl:agent": { "@id": "https://alice.pod/profile/card#me" },
+  "acl:accessTo": { "@id": "./" },
+  "acl:default": { "@id": "./" },
+  "acl:mode": [
+    { "@id": "acl:Read" },
+    { "@id": "acl:Write" },
+    { "@id": "acl:Control" }
+  ]
+}</code></pre>
         </div>
 
         <div class="section">
@@ -446,61 +511,57 @@
 }</code></pre>
 
             <h3>Public read, owner write</h3>
-            <pre><code>{
-  "@context": {
-    "acl": "http://www.w3.org/ns/auth/acl#",
-    "foaf": "http://xmlns.com/foaf/0.1/"
+            <pre><code>[
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#owner",
+    "@type": "acl:Authorization",
+    "acl:agent": { "@id": "https://you.pod/profile/card#me" },
+    "acl:accessTo": { "@id": "./resource" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" },
+      { "@id": "acl:Control" }
+    ]
   },
-  "@graph": [
-    {
-      "@id": "#owner",
-      "@type": "acl:Authorization",
-      "acl:agent": { "@id": "https://you.pod/profile/card#me" },
-      "acl:accessTo": { "@id": "./resource" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" },
-        { "@id": "acl:Control" }
-      ]
+  {
+    "@context": {
+      "acl": "http://www.w3.org/ns/auth/acl#",
+      "foaf": "http://xmlns.com/foaf/0.1/"
     },
-    {
-      "@id": "#public",
-      "@type": "acl:Authorization",
-      "acl:agentClass": { "@id": "foaf:Agent" },
-      "acl:accessTo": { "@id": "./resource" },
-      "acl:mode": [ { "@id": "acl:Read" } ]
-    }
-  ]
-}</code></pre>
+    "@id": "#public",
+    "@type": "acl:Authorization",
+    "acl:agentClass": { "@id": "foaf:Agent" },
+    "acl:accessTo": { "@id": "./resource" },
+    "acl:mode": [ { "@id": "acl:Read" } ]
+  }
+]</code></pre>
 
             <h3>Append-only inbox</h3>
-            <pre><code>{
-  "@context": {
-    "acl": "http://www.w3.org/ns/auth/acl#"
+            <pre><code>[
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#owner",
+    "@type": "acl:Authorization",
+    "acl:agent": { "@id": "https://you.pod/profile/card#me" },
+    "acl:accessTo": { "@id": "./inbox/" },
+    "acl:default": { "@id": "./inbox/" },
+    "acl:mode": [
+      { "@id": "acl:Read" },
+      { "@id": "acl:Write" },
+      { "@id": "acl:Control" }
+    ]
   },
-  "@graph": [
-    {
-      "@id": "#owner",
-      "@type": "acl:Authorization",
-      "acl:agent": { "@id": "https://you.pod/profile/card#me" },
-      "acl:accessTo": { "@id": "./inbox/" },
-      "acl:default": { "@id": "./inbox/" },
-      "acl:mode": [
-        { "@id": "acl:Read" },
-        { "@id": "acl:Write" },
-        { "@id": "acl:Control" }
-      ]
-    },
-    {
-      "@id": "#appendPublic",
-      "@type": "acl:Authorization",
-      "acl:agentClass": { "@id": "acl:AuthenticatedAgent" },
-      "acl:accessTo": { "@id": "./inbox/" },
-      "acl:default": { "@id": "./inbox/" },
-      "acl:mode": [ { "@id": "acl:Append" } ]
-    }
-  ]
-}</code></pre>
+  {
+    "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+    "@id": "#appendPublic",
+    "@type": "acl:Authorization",
+    "acl:agentClass": { "@id": "acl:AuthenticatedAgent" },
+    "acl:accessTo": { "@id": "./inbox/" },
+    "acl:default": { "@id": "./inbox/" },
+    "acl:mode": [ { "@id": "acl:Append" } ]
+  }
+]</code></pre>
 
             <h3>Group access</h3>
             <pre><code>{
