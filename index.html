@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebACL - Web Access Control for Solid</title>
+    <meta name="description" content="Solid Web Access Control (WAC) reference. JSON-LD based ACL ontology, .acl file format, and SKILL.md for AI agents.">
+    <meta property="og:title" content="WebACL - Web Access Control for Solid">
+    <meta property="og:description" content="Decentralized access control for Linked Data. JSON-LD reference and SKILL.md for AI agents.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://webacl.github.io/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WebACL - Web Access Control for Solid">
+    <meta name="twitter:description" content="Decentralized access control for Linked Data. JSON-LD reference and SKILL.md for AI agents.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            line-height: 1.7;
+            color: #2c2c2c;
+            background: #fafaf8;
+            padding: 3rem 2rem;
+        }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2.4rem;
+            font-weight: normal;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.2rem;
+        }
+        .subtitle {
+            font-style: italic;
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .author {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 1rem;
+        }
+        .links {
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .links a {
+            color: #1a5276;
+            text-decoration: none;
+            margin-right: 1.2rem;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: normal;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #2c2c2c;
+        }
+        h3 {
+            font-size: 1.15rem;
+            font-weight: normal;
+            font-style: italic;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #444;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+        a {
+            color: #1a5276;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            background: #f0efeb;
+            padding: 0.15em 0.4em;
+            border-radius: 3px;
+        }
+        pre {
+            background: #f0efeb;
+            padding: 1.2rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 0.85em;
+        }
+        .highlight-box {
+            background: #f0efeb;
+            padding: 1.2rem 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+        .highlight-box ol {
+            padding-left: 1.2rem;
+        }
+        .highlight-box li {
+            margin-bottom: 0.4rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            font-weight: normal;
+            font-style: italic;
+            color: #666;
+        }
+        .section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .mode-card {
+            background: #f0efeb;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+        .mode-card strong {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: normal;
+            font-size: 0.95rem;
+        }
+        .mode-card p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            color: #555;
+        }
+        .ecosystem-section h3 {
+            font-style: normal;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #2c2c2c;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .ecosystem-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .ecosystem-section li {
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+        .ecosystem-section li a {
+            color: #1a5276;
+        }
+        .tag {
+            font-size: 0.75rem;
+            color: #888;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.85rem;
+            color: #999;
+        }
+        footer a {
+            color: #888;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WebACL</h1>
+        <p class="subtitle">Web Access Control for Solid</p>
+        <p class="author">Based on work by Tim Berners-Lee (2009) and the W3C Solid Community Group</p>
+        <div class="links">
+            <a href="https://solid.github.io/web-access-control-spec/">Specification</a>
+            <a href="https://github.com/solid/web-access-control-spec">GitHub</a>
+            <a href="https://www.w3.org/ns/auth/acl">Ontology</a>
+            <a href="SKILL.md">SKILL.md</a>
+            <a href="https://github.com/webacl/webacl.github.io">Source</a>
+        </div>
+
+        <div class="section">
+            <h2>What is WebACL?</h2>
+            <p>
+                Web Access Control (WAC) is a decentralized, cross-domain access control system for Linked Data.
+                A server stores authorization rules in <code>.acl</code> files&mdash;RDF documents that describe
+                <em>who</em> can perform <em>what operations</em> on <em>which resources</em>. Agents are identified
+                by <a href="https://www.w3.org/wiki/WebID">WebID</a> URIs. Permissions cascade through container
+                hierarchies via inheritance.
+            </p>
+            <p>
+                WAC is the primary authorization mechanism in the
+                <a href="https://solidproject.org/">Solid Protocol</a>. Every resource can have an associated
+                ACL resource, discoverable via a <code>Link</code> header with <code>rel="acl"</code>.
+            </p>
+            <pre><code>Link: &lt;https://alice.pod/docs/file1.acl&gt;; rel="acl"</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>How It Works</h2>
+            <div class="highlight-box">
+                <ol>
+                    <li>Every resource may have an associated <code>.acl</code> file containing authorization rules in RDF (Turtle or JSON-LD)</li>
+                    <li>Each authorization specifies an <strong>agent</strong> (who), <strong>access mode</strong> (what), and <strong>target resource</strong> (which)</li>
+                    <li>The server authenticates the requesting agent via WebID (e.g., Solid-OIDC)</li>
+                    <li>The server locates the <strong>effective ACL</strong>&mdash;the resource's own <code>.acl</code>, or the nearest ancestor container's ACL with <code>acl:default</code></li>
+                    <li>Access is granted only if a matching authorization exists for the agent, mode, and resource</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>The .acl File</h2>
+            <p>
+                An ACL file is an RDF document. Each <code>acl:Authorization</code> resource must have
+                all four components: a type, an access subject, an access mode, and an access target.
+            </p>
+
+            <h3>Turtle format (canonical)</h3>
+            <pre><code>@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt; .
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
+
+# Owner has full access
+&lt;#owner&gt;
+    a acl:Authorization;
+    acl:agent &lt;https://alice.pod/profile/card#me&gt;;
+    acl:accessTo &lt;./file1&gt;;
+    acl:mode acl:Read, acl:Write, acl:Control.
+
+# Public can read
+&lt;#public&gt;
+    a acl:Authorization;
+    acl:agentClass foaf:Agent;
+    acl:accessTo &lt;./file1&gt;;
+    acl:mode acl:Read.</code></pre>
+
+            <h3>JSON-LD format (equivalent)</h3>
+            <p>Since ACL files are RDF, they can be expressed in JSON-LD&mdash;making them accessible
+            to web developers and AI agents that work natively with JSON:</p>
+            <pre><code>{
+  "@context": {
+    "acl": "http://www.w3.org/ns/auth/acl#",
+    "foaf": "http://xmlns.com/foaf/0.1/"
+  },
+  "@graph": [
+    {
+      "@id": "#owner",
+      "@type": "acl:Authorization",
+      "acl:agent": { "@id": "https://alice.pod/profile/card#me" },
+      "acl:accessTo": { "@id": "./file1" },
+      "acl:mode": [
+        { "@id": "acl:Read" },
+        { "@id": "acl:Write" },
+        { "@id": "acl:Control" }
+      ]
+    },
+    {
+      "@id": "#public",
+      "@type": "acl:Authorization",
+      "acl:agentClass": { "@id": "foaf:Agent" },
+      "acl:accessTo": { "@id": "./file1" },
+      "acl:mode": [
+        { "@id": "acl:Read" }
+      ]
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>Access Modes</h2>
+            <div class="mode-grid">
+                <div class="mode-card">
+                    <strong>acl:Read</strong>
+                    <p>View resource contents. Maps to HTTP GET, HEAD.</p>
+                </div>
+                <div class="mode-card">
+                    <strong>acl:Write</strong>
+                    <p>Create, modify, delete resources. Maps to PUT, POST, PATCH, DELETE. Implies Append.</p>
+                </div>
+                <div class="mode-card">
+                    <strong>acl:Append</strong>
+                    <p>Add data without removing existing data. Maps to POST and INSERT-only PATCH.</p>
+                </div>
+                <div class="mode-card">
+                    <strong>acl:Control</strong>
+                    <p>Read and modify the ACL resource itself. The meta-permission.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Access Subjects</h2>
+            <table>
+                <tr>
+                    <th>Predicate</th>
+                    <th>Grants access to</th>
+                </tr>
+                <tr>
+                    <td><code>acl:agent</code></td>
+                    <td>A specific agent identified by WebID URI</td>
+                </tr>
+                <tr>
+                    <td><code>acl:agentGroup</code></td>
+                    <td>Members of a <code>vcard:Group</code> (external RDF document)</td>
+                </tr>
+                <tr>
+                    <td><code>acl:agentClass foaf:Agent</code></td>
+                    <td>Everyone (public access, including unauthenticated)</td>
+                </tr>
+                <tr>
+                    <td><code>acl:agentClass acl:AuthenticatedAgent</code></td>
+                    <td>Any authenticated agent (must have a WebID)</td>
+                </tr>
+                <tr>
+                    <td><code>acl:origin</code></td>
+                    <td>A specific web application origin (combined with agent)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Inheritance</h2>
+            <p>
+                If a resource has no <code>.acl</code> file, the server walks up the container hierarchy
+                looking for the nearest ancestor ACL with <code>acl:default</code>. The root container's
+                ACL always exists.
+            </p>
+            <pre><code>https://alice.pod/
+    .acl                    &larr; root ACL (always exists)
+    profile/
+        card                &larr; inherits from root .acl
+        card.acl            &larr; own ACL overrides inheritance
+    public/
+        .acl                &larr; container ACL with acl:default
+        photos/
+            vacation.jpg    &larr; inherits from public/.acl
+    inbox/
+        .acl                &larr; owner R/W, public Append</code></pre>
+            <p>
+                <code>acl:accessTo</code> applies to the resource itself.
+                <code>acl:default</code> applies to child resources that lack their own ACL.
+                These are independent&mdash;use both to cover a container and its children:
+            </p>
+            <pre><code>&lt;#owner&gt;
+    a acl:Authorization;
+    acl:agent &lt;https://alice.pod/profile/card#me&gt;;
+    acl:accessTo &lt;./&gt;;    # this container
+    acl:default &lt;./&gt;;     # inherited by children
+    acl:mode acl:Read, acl:Write, acl:Control.</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>ACL Ontology</h2>
+            <p>
+                The full ontology lives at
+                <a href="https://www.w3.org/ns/auth/acl">http://www.w3.org/ns/auth/acl#</a>.
+                Here is the complete JSON-LD context for WebACL:
+            </p>
+            <pre><code>{
+  "@context": {
+    "acl": "http://www.w3.org/ns/auth/acl#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "vcard": "http://www.w3.org/2006/vcard/ns#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+
+    "Authorization": "acl:Authorization",
+    "Read": "acl:Read",
+    "Write": "acl:Write",
+    "Append": "acl:Append",
+    "Control": "acl:Control",
+
+    "accessTo": { "@id": "acl:accessTo", "@type": "@id" },
+    "default": { "@id": "acl:default", "@type": "@id" },
+    "agent": { "@id": "acl:agent", "@type": "@id" },
+    "agentClass": { "@id": "acl:agentClass", "@type": "@id" },
+    "agentGroup": { "@id": "acl:agentGroup", "@type": "@id" },
+    "mode": { "@id": "acl:mode", "@type": "@id", "@container": "@set" },
+    "origin": { "@id": "acl:origin", "@type": "@id" },
+    "accessControl": { "@id": "acl:accessControl", "@type": "@id" },
+
+    "AuthenticatedAgent": "acl:AuthenticatedAgent",
+    "Agent": "foaf:Agent",
+    "Group": "vcard:Group",
+    "hasMember": { "@id": "vcard:hasMember", "@type": "@id" }
+  }
+}</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>Common Patterns</h2>
+
+            <h3>Owner-only resource</h3>
+            <pre><code>{
+  "@context": { "acl": "http://www.w3.org/ns/auth/acl#" },
+  "@id": "#owner",
+  "@type": "acl:Authorization",
+  "acl:agent": { "@id": "https://you.pod/profile/card#me" },
+  "acl:accessTo": { "@id": "./private-file" },
+  "acl:mode": [
+    { "@id": "acl:Read" },
+    { "@id": "acl:Write" },
+    { "@id": "acl:Control" }
+  ]
+}</code></pre>
+
+            <h3>Public read, owner write</h3>
+            <pre><code>{
+  "@context": {
+    "acl": "http://www.w3.org/ns/auth/acl#",
+    "foaf": "http://xmlns.com/foaf/0.1/"
+  },
+  "@graph": [
+    {
+      "@id": "#owner",
+      "@type": "acl:Authorization",
+      "acl:agent": { "@id": "https://you.pod/profile/card#me" },
+      "acl:accessTo": { "@id": "./resource" },
+      "acl:mode": [
+        { "@id": "acl:Read" },
+        { "@id": "acl:Write" },
+        { "@id": "acl:Control" }
+      ]
+    },
+    {
+      "@id": "#public",
+      "@type": "acl:Authorization",
+      "acl:agentClass": { "@id": "foaf:Agent" },
+      "acl:accessTo": { "@id": "./resource" },
+      "acl:mode": [ { "@id": "acl:Read" } ]
+    }
+  ]
+}</code></pre>
+
+            <h3>Append-only inbox</h3>
+            <pre><code>{
+  "@context": {
+    "acl": "http://www.w3.org/ns/auth/acl#"
+  },
+  "@graph": [
+    {
+      "@id": "#owner",
+      "@type": "acl:Authorization",
+      "acl:agent": { "@id": "https://you.pod/profile/card#me" },
+      "acl:accessTo": { "@id": "./inbox/" },
+      "acl:default": { "@id": "./inbox/" },
+      "acl:mode": [
+        { "@id": "acl:Read" },
+        { "@id": "acl:Write" },
+        { "@id": "acl:Control" }
+      ]
+    },
+    {
+      "@id": "#appendPublic",
+      "@type": "acl:Authorization",
+      "acl:agentClass": { "@id": "acl:AuthenticatedAgent" },
+      "acl:accessTo": { "@id": "./inbox/" },
+      "acl:default": { "@id": "./inbox/" },
+      "acl:mode": [ { "@id": "acl:Append" } ]
+    }
+  ]
+}</code></pre>
+
+            <h3>Group access</h3>
+            <pre><code>{
+  "@context": {
+    "acl": "http://www.w3.org/ns/auth/acl#"
+  },
+  "@id": "#teamAccess",
+  "@type": "acl:Authorization",
+  "acl:agentGroup": { "@id": "https://you.pod/groups#Engineering" },
+  "acl:accessTo": { "@id": "./shared-doc" },
+  "acl:mode": [
+    { "@id": "acl:Read" },
+    { "@id": "acl:Write" }
+  ]
+}</code></pre>
+        </div>
+
+        <div class="section ecosystem-section">
+            <h2>Ecosystem</h2>
+
+            <h3>Specifications</h3>
+            <ul>
+                <li><a href="https://solid.github.io/web-access-control-spec/">Web Access Control</a> &mdash; WAC 1.0.0 Draft, Solid Community Group <span class="tag">spec</span></li>
+                <li><a href="https://solid.github.io/specification/protocol">Solid Protocol</a> &mdash; the protocol that mandates WAC support <span class="tag">spec</span></li>
+                <li><a href="https://www.w3.org/ns/auth/acl">ACL Ontology</a> &mdash; the RDF vocabulary at w3.org/ns/auth/acl# <span class="tag">ontology</span></li>
+                <li><a href="https://solid.github.io/authorization-panel/acp-specification/">Access Control Policy (ACP)</a> &mdash; the newer alternative to WAC <span class="tag">spec</span></li>
+            </ul>
+
+            <h3>Server Implementations</h3>
+            <ul>
+                <li><a href="https://github.com/CommunitySolidServer/CommunitySolidServer">Community Solid Server (CSS)</a> &mdash; reference implementation, supports WAC and ACP <span class="tag">TypeScript</span></li>
+                <li><a href="https://github.com/nodeSolidServer/node-solid-server">Node Solid Server (NSS)</a> &mdash; original Solid server, WAC support <span class="tag">JavaScript</span></li>
+                <li><a href="https://github.com/inrupt/pod-server">Inrupt Enterprise Solid Server</a> &mdash; commercial Solid server <span class="tag">Java</span></li>
+            </ul>
+
+            <h3>Libraries &amp; SDKs</h3>
+            <ul>
+                <li><a href="https://www.npmjs.com/package/@inrupt/solid-client">@inrupt/solid-client</a> &mdash; universal access API for WAC and ACP <span class="tag">JavaScript</span></li>
+                <li><a href="https://www.npmjs.com/package/solid-acl-parser">solid-acl-parser</a> &mdash; parse and modify Turtle ACL files <span class="tag">JavaScript</span></li>
+                <li><a href="https://www.npmjs.com/package/solid-file-client">solid-file-client</a> &mdash; high-level file and ACL management <span class="tag">JavaScript</span></li>
+                <li><a href="https://www.npmjs.com/package/@solid/acl-check">@solid/acl-check</a> &mdash; server-side ACL validation <span class="tag">JavaScript</span></li>
+            </ul>
+
+            <h3>Tools</h3>
+            <ul>
+                <li><a href="https://github.com/solid/mashlib">Mashlib / Data Browser</a> &mdash; Solid data browser with ACL editing UI <span class="tag">JavaScript</span></li>
+                <li><a href="https://github.com/otto-aa/solid-acl-utils">solid-acl-utils</a> &mdash; utility functions for ACL management <span class="tag">JavaScript</span></li>
+                <li><a href="https://github.com/frogcat/ttl2jsonld">ttl2jsonld</a> &mdash; convert Turtle to JSON-LD <span class="tag">JavaScript</span></li>
+            </ul>
+
+            <h3>Learning Resources</h3>
+            <ul>
+                <li><a href="https://www.w3.org/wiki/WebAccessControl">W3C WebAccessControl Wiki</a> &mdash; original wiki page by Tim Berners-Lee</li>
+                <li><a href="https://github.com/solid/solid-spec/blob/master/acl-inheritance.md">ACL Inheritance</a> &mdash; detailed inheritance model documentation</li>
+                <li><a href="https://solidproject.org/">solidproject.org</a> &mdash; official Solid project website</li>
+                <li><a href="https://forum.solidproject.org/">Solid Forum</a> &mdash; community discussions on WAC and ACL</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>W3C Solid Community Group</h2>
+            <p>
+                WebACL was originally proposed by Tim Berners-Lee in May 2009 as part of the
+                <a href="https://www.w3.org/wiki/WebAccessControl">W3C WebAccessControl</a> work.
+                The current specification (Version 1.0.0, 12 May 2024) is maintained by the
+                <a href="https://www.w3.org/community/solid/">W3C Solid Community Group</a>,
+                edited by Sarven Capadisli.
+            </p>
+            <p>
+                The specification mandates that Solid servers conform to either WAC or
+                <a href="https://solid.github.io/authorization-panel/acp-specification/">ACP</a>
+                (Access Control Policy). WAC is the more widely deployed mechanism; ACP offers
+                greater expressivity for complex authorization scenarios.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>SKILL.md</h2>
+            <p>
+                The <a href="SKILL.md">SKILL.md</a> file provides a machine-readable implementation
+                guide for AI agents. It contains the complete JSON-LD context, authorization templates
+                for common patterns, and step-by-step instructions for generating valid <code>.acl</code>
+                files. An AI agent reading the SKILL.md can create WebACL resources programmatically.
+            </p>
+        </div>
+
+        <footer>
+            <p>
+                <a href="https://github.com/webacl/webacl.github.io">Source</a> &middot;
+                <a href="https://github.com/webacl/webacl.github.io/blob/gh-pages/LICENSE">AGPL-3.0</a> &middot;
+                Based on the <a href="https://solid.github.io/web-access-control-spec/">WAC Specification</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
